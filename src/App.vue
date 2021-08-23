@@ -52,6 +52,7 @@ export default {
   mounted() {
     if (JSON.parse(localStorage.getItem("todoList")) !== null) {
       this.todoList = JSON.parse(localStorage.getItem("todoList"));
+      this.nextIndex = this.todoList.length
     }
   },
   data() {
