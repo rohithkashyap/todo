@@ -24,7 +24,9 @@ export default {
     TodoItem,
   },
   mounted() {
-    this.todoList = JSON.parse(localStorage.getItem('todoList'));
+    if (JSON.parse(localStorage.getItem('todoList')) !== null) {
+      this.todoList = JSON.parse(localStorage.getItem('todoList'));
+    }
   },
   data() {
     return {
