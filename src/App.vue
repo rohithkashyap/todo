@@ -23,6 +23,9 @@ export default {
   components: {
     TodoItem,
   },
+  mounted() {
+    this.todoList = JSON.parse(localStorage.getItem('todoList'));
+  },
   data() {
     return {
       todoList: [],
@@ -37,7 +40,6 @@ export default {
         text: this.newTodoItem,
       });
       this.newTodoItem = "";
-      console.log(this.nextIndex);
       this.nextIndex++;
     },
     removeItem(idx) {
@@ -46,6 +48,14 @@ export default {
       });
     },
   },
+  watch: {
+    todoList: {
+      handler() {
+        localStorage.setItem('todoList', JSON.stringify(this.todoList));
+      },
+      deep:true
+    }, 
+  }
 };
 </script>
 
