@@ -25,7 +25,9 @@
             v-model="dateEnabled"
             id="dueDateCheckbox"
           />
-          <label style="margin-left:10px" for="dueDateCheckbox">Due date</label>
+          <label style="margin-left: 10px" for="dueDateCheckbox"
+            >Due date</label
+          >
         </div>
         <div class="col-5">
           <input
@@ -101,7 +103,7 @@ export default {
       todoList: [],
       newTodoItem: "",
       newNotes: "",
-      newDueDate: new Date().toISOString().slice(0,16),
+      newDueDate: this.toIsoString(new Date()).slice(0,16),
       newPriority: "Medium",
       dateEnabled: false,
     };
@@ -117,18 +119,44 @@ export default {
         text: this.newTodoItem,
         notes: this.newNotes,
         dueDate: this.dateEnabled ? this.newDueDate : null,
-        priority: this.newPriority
+        priority: this.newPriority,
       });
       this.newTodoItem = "";
       this.newNotes = "";
       this.dateEnabled = false;
-      this.newDueDate = new Date();
+      this.newDueDate = this.toIsoString(new Date()).slice(0,16);
       this.newPriority = "Medium";
     },
     removeItem(idx) {
       this.todoList = this.todoList.filter(function (obj) {
         return obj.id !== idx;
       });
+    },
+    toIsoString(date) {
+      var tzo = -date.getTimezoneOffset(),
+        dif = tzo >= 0 ? "+" : "-",
+        pad = function (num) {
+          var norm = Math.floor(Math.abs(num));
+          return (norm < 10 ? "0" : "") + norm;
+        };
+
+      return (
+        date.getFullYear() +
+        "-" +
+        pad(date.getMonth() + 1) +
+        "-" +
+        pad(date.getDate()) +
+        "T" +
+        pad(date.getHours()) +
+        ":" +
+        pad(date.getMinutes()) +
+        ":" +
+        pad(date.getSeconds()) +
+        dif +
+        pad(tzo / 60) +
+        ":" +
+        pad(tzo % 60)
+      );
     },
   },
   watch: {
@@ -138,14 +166,15 @@ export default {
       },
       deep: true,
     },
-    dateEnabled: function(){
-      this.newDueDate = new Date().toISOString().slice(0,16)
-    }
+    dateEnabled: function () {
+      this.newDueDate = this.toIsoString(new Date()).slice(0,16);
+    },
   },
 };
 </script>
 
 <style>
-.top-buffer { margin-top:10px; }
-
+.top-buffer {
+  margin-top: 10px;
+}
 </style>
