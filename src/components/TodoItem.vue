@@ -1,9 +1,15 @@
 <template>
-  <div class="row">
+  <div class="row" style="margin-top: 20px">
     <div class="col-10">
-      <li class="card">
+      <li class="card" :class="style">
         <div class="card-body">
-          {{ todo.text }}
+          <h3 class="card-title">{{ todo.text }}</h3>
+          <p class="card-text">{{ todo.notes }}</p>
+        </div>
+        <div v-show="todo.dueDate !== null" class="card-footer">
+          <small v-show="todo.dueDate !== null" class="text-muted"
+            >Due {{ todo.dueDate }}</small
+          >
         </div>
       </li>
     </div>
@@ -22,6 +28,19 @@ export default {
       this.$emit("remove-item", this.todo.id);
     },
   },
+  computed: {
+    style() {
+      if (this.todo.priority === 'High') {
+        return 'border-danger'
+      }
+      else if (this.todo.priority === 'Low') {
+        return 'border-primary'
+      }
+      else {
+        return 'border-secondary'
+      }
+    }
+  }
 };
 </script>
 

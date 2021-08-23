@@ -4,28 +4,70 @@
     <div class="d-flex justify-content-center">
       <h2>Todo</h2>
     </div>
+
     <!-- Add a todo -->
-    <div class="row">
-      <form @submit.prevent="addToList()">
-        <div class="row">
-          <div class="col">
-            <input
-              class="form-control"
-              type="text"
-              placeholder="Add a todo..."
-              v-model="newTodoItem"
-            />
-          </div>
+    <form @submit.prevent="addToList()">
+      <div class="row">
+        <div class="col">
+          <input
+            class="form-control"
+            type="text"
+            placeholder="Add a todo..."
+            v-model="newTodoItem"
+          />
         </div>
-        <div class="row" style="margin-top:20px">
-          <div class="col text-center">
-            <button class="btn btn-primary btn-block" :disabled="newTodoItem === ''">
-              Add
-            </button>
-          </div>
+      </div>
+      <div class="row top-buffer">
+        <div class="col-2">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            v-model="dateEnabled"
+            id="dueDateCheckbox"
+          />
+          <label style="margin-left:10px" for="dueDateCheckbox">Due date</label>
         </div>
-      </form>
-    </div>
+        <div class="col-5">
+          <input
+            :disabled="!dateEnabled"
+            type="datetime-local"
+            v-model="newDueDate"
+          />
+        </div>
+      </div>
+      <div class="row top-buffer">
+        <div class="col-2">
+          <label for="">Priority</label>
+        </div>
+        <div class="col-5">
+          <select class="form-select" v-model="newPriority">
+            <option>High</option>
+            <option selected>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+      </div>
+      <div class="row top-buffer">
+        <div class="col">
+          <input
+            class="form-control"
+            type="text"
+            placeholder="Optional notes"
+            v-model="newNotes"
+          />
+        </div>
+      </div>
+      <div class="row top-buffer">
+        <div class="col text-center">
+          <button
+            class="btn btn-primary btn-block"
+            :disabled="newTodoItem === ''"
+          >
+            Add
+          </button>
+        </div>
+      </div>
+    </form>
 
     <hr v-show="todoList.length !== 0" />
 
@@ -52,14 +94,17 @@ export default {
   mounted() {
     if (JSON.parse(localStorage.getItem("todoList")) !== null) {
       this.todoList = JSON.parse(localStorage.getItem("todoList"));
-      this.nextIndex = this.todoList.length
+      this.nextIndex = this.todoList.length;
     }
   },
   data() {
     return {
       todoList: [],
       newTodoItem: "",
-      nextIndex: 0,
+      newNotes: "",
+      newDueDate: "",
+      newPriority: "Medium",
+      dateEnabled: false,
     };
   },
   methods: {
@@ -69,11 +114,15 @@ export default {
         return;
       }
       this.todoList.push({
-        id: this.nextIndex,
+        id: Date.now(),
         text: this.newTodoItem,
+        notes: this.newNotes,
+        dueDate: this.dateEnabled ? this.newDueDate : null,
+        priority: this.newPriority
       });
       this.newTodoItem = "";
-      this.nextIndex++;
+      this.newNotes = "";
+      this.priority = "Medium";
     },
     removeItem(idx) {
       this.todoList = this.todoList.filter(function (obj) {
@@ -93,4 +142,6 @@ export default {
 </script>
 
 <style>
+.top-buffer { margin-top:10px; }
+
 </style>
