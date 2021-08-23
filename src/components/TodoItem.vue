@@ -4,7 +4,7 @@
       <li class="card" :class="style">
         <div class="card-body">
           <h3 class="card-title">{{ todo.text }}</h3>
-          <p class="card-text">{{ todo.notes }}</p>
+          <p class="card-text" style="white-space: pre-wrap;">{{ todo.notes }}</p>
         </div>
         <div v-show="todo.dueDate !== null" class="card-footer">
           <small v-show="todo.dueDate !== null" class="text-muted"
@@ -33,11 +33,11 @@ export default {
       if (this.todo.priority === 'High') {
         return 'border-danger'
       }
-      else if (this.todo.priority === 'Low') {
+      else if (this.todo.priority === 'Medium') {
         return 'border-primary'
       }
       else {
-        return 'border-secondary'
+        return 'border-success'
       }
     }
   }

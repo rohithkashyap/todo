@@ -49,9 +49,8 @@
       </div>
       <div class="row top-buffer">
         <div class="col">
-          <input
+          <textarea
             class="form-control"
-            type="text"
             placeholder="Optional notes"
             v-model="newNotes"
           />
@@ -102,7 +101,7 @@ export default {
       todoList: [],
       newTodoItem: "",
       newNotes: "",
-      newDueDate: "",
+      newDueDate: new Date().toISOString().slice(0,16),
       newPriority: "Medium",
       dateEnabled: false,
     };
@@ -122,7 +121,9 @@ export default {
       });
       this.newTodoItem = "";
       this.newNotes = "";
-      this.priority = "Medium";
+      this.dateEnabled = false;
+      this.newDueDate = new Date();
+      this.newPriority = "Medium";
     },
     removeItem(idx) {
       this.todoList = this.todoList.filter(function (obj) {
@@ -137,6 +138,9 @@ export default {
       },
       deep: true,
     },
+    dateEnabled: function(){
+      this.newDueDate = new Date().toISOString().slice(0,16)
+    }
   },
 };
 </script>
