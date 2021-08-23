@@ -1,17 +1,43 @@
 <template>
-  <div>
-    <form @submit.prevent="addToList()">
-      <input type="text" v-model="newTodoItem" /><br /><br />
-      <button>Add</button>
-    </form>
-    <ol>
+  <div class="container">
+    <!-- header -->
+    <div class="d-flex justify-content-center">
+      <h2>Todo</h2>
+    </div>
+    <!-- Add a todo -->
+    <div class="row">
+      <form @submit.prevent="addToList()">
+        <div class="row">
+          <div class="col">
+            <input
+              class="form-control"
+              type="text"
+              placeholder="Add a todo..."
+              v-model="newTodoItem"
+            />
+          </div>
+        </div>
+        <div class="row" style="margin-top:20px">
+          <div class="col text-center">
+            <button class="btn btn-primary btn-block" :disabled="newTodoItem === ''">
+              Add
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <hr v-show="todoList.length !== 0" />
+
+    <!-- todo list -->
+    <ul style="list-style-type: none">
       <todo-item
         v-for="todo in todoList"
         v-bind:todo="todo"
         v-bind:key="todo.id"
         v-on:remove-item="removeItem"
       ></todo-item>
-    </ol>
+    </ul>
   </div>
 </template>
 
@@ -24,8 +50,8 @@ export default {
     TodoItem,
   },
   mounted() {
-    if (JSON.parse(localStorage.getItem('todoList')) !== null) {
-      this.todoList = JSON.parse(localStorage.getItem('todoList'));
+    if (JSON.parse(localStorage.getItem("todoList")) !== null) {
+      this.todoList = JSON.parse(localStorage.getItem("todoList"));
     }
   },
   data() {
@@ -37,6 +63,10 @@ export default {
   },
   methods: {
     addToList() {
+      if (this.newTodoItem === "") {
+        alert("Invalid entry");
+        return;
+      }
       this.todoList.push({
         id: this.nextIndex,
         text: this.newTodoItem,
@@ -53,21 +83,13 @@ export default {
   watch: {
     todoList: {
       handler() {
-        localStorage.setItem('todoList', JSON.stringify(this.todoList));
+        localStorage.setItem("todoList", JSON.stringify(this.todoList));
       },
-      deep:true
-    }, 
-  }
+      deep: true,
+    },
+  },
 };
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
 </style>
