@@ -22,7 +22,7 @@
 
   <!-- controls for complete or delete -->
   <div class="row">
-    <div class="col-4" v-if="todo.completed === false">
+    <div class="col-4" v-if="todo.completed === false || todo.completed == null">
       <button class="btn btn-outline-dark form-control" v-on:click="completeTodo()">
         Done ✔️
       </button>
