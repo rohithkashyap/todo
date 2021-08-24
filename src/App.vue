@@ -1,5 +1,5 @@
 <template>
-  <div class="container" style="margin-bottom:50px">
+  <div class="container" style="margin-bottom: 50px">
     <!-- header -->
     <div class="d-flex justify-content-center">
       <h2>Todo</h2>
@@ -96,13 +96,20 @@
       </li>
     </ul>
 
+    <input
+      class="form-control top-buffer"
+      type="text"
+      placeholder="Search..."
+      v-model="searchText"
+    />
+
     <!-- todo list -->
     <div v-if="pendingActive">
       <div class="row center-block text-center" style="margin-top: 20px">
-        <h3 v-if="todoList.length === 0">No pending todos</h3>
+        <h3 v-if="filteredTodoList.length === 0">No pending todos</h3>
       </div>
       <todo-item
-        v-for="todo in todoList"
+        v-for="todo in filteredTodoList"
         v-bind:todo="todo"
         v-bind:key="todo.id"
         v-on:delete-todo="deleteTodo"
@@ -113,10 +120,12 @@
     <!-- completed list -->
     <div v-if="!pendingActive">
       <div class="row center-block text-center" style="margin-top: 20px">
-        <h3 v-if="completedTodoList.length === 0">No completed todos</h3>
+        <h3 v-if="filteredCompletedTodoList.length === 0">
+          No completed todos
+        </h3>
       </div>
       <todo-item
-        v-for="todo in completedTodoList"
+        v-for="todo in filteredCompletedTodoList"
         v-bind:todo="todo"
         v-bind:key="todo.id"
         v-on:delete-todo="deleteCompletedTodo"
@@ -137,23 +146,28 @@ export default {
   mounted() {
     if (JSON.parse(localStorage.getItem("todoList")) !== null) {
       this.todoList = JSON.parse(localStorage.getItem("todoList"));
+      this.filteredTodoList = this.todoList;
     }
     if (JSON.parse(localStorage.getItem("completedTodoList")) !== null) {
       this.completedTodoList = JSON.parse(
         localStorage.getItem("completedTodoList")
       );
+      this.filteredCompletedTodoList = this.completedTodoList;
     }
   },
   data() {
     return {
       todoList: [],
       completedTodoList: [],
-      newTodoItem: "",
-      newNotes: "",
+      filteredTodoList: [],
+      filteredCompletedTodoList: [],
+      newTodoItem: String(""),
+      newNotes: String(""),
       newDueDate: null,
       newPriority: "Medium",
       dateEnabled: false,
       pendingActive: true,
+      searchText: String(""),
     };
   },
   methods: {
@@ -231,6 +245,7 @@ export default {
   watch: {
     todoList: {
       handler() {
+        this.filteredTodoList = this.todoList;
         localStorage.setItem("todoList", JSON.stringify(this.todoList));
       },
       deep: true,
@@ -246,6 +261,27 @@ export default {
     },
     dateEnabled: function () {
       this.newDueDate = this.toIsoString(new Date()).slice(0, 16);
+    },
+    searchText: function () {
+      // If empty, return full array
+      if (!this.searchText) {
+        this.filteredTodoList = this.todoList;
+        this.filteredCompletedTodoList = this.completedTodoList;
+      }
+      // Otherwise, search for todo text
+      else {
+        this.filteredTodoList = this.todoList.filter(
+          (obj) =>
+            obj.text.toLowerCase().includes(this.searchText.toLowerCase()) ||
+            obj.notes.toLowerCase().includes(this.searchText.toLowerCase())
+        );
+
+        this.filteredCompletedTodoList = this.completedTodoList.filter(
+          (obj) =>
+            obj.text.toLowerCase().includes(this.searchText.toLowerCase()) ||
+            obj.notes.toLowerCase().includes(this.searchText.toLowerCase())
+        );
+      }
     },
   },
 };
