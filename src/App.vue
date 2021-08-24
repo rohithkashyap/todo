@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container" style="margin-bottom:50px">
     <!-- header -->
     <div class="d-flex justify-content-center">
       <h2>Todo</h2>
@@ -59,28 +59,70 @@
         </div>
       </div>
       <div class="row top-buffer">
+        <div class="col"></div>
         <div class="col text-center">
           <button
-            class="btn btn-primary btn-block"
+            class="btn btn-outline-primary form-control"
             :disabled="newTodoItem === ''"
           >
-            Add
+            Add ➕
           </button>
         </div>
+        <div class="col"></div>
       </div>
     </form>
 
-    <hr v-show="todoList.length !== 0" />
+    <hr style="margin-top: 50px" />
+
+    <!-- Tab for pending/completed -->
+    <ul class="nav nav-pills nav-fill">
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          v-on:click="pendingActive = true"
+          v-bind:class="{ active: pendingActive }"
+        >
+          Pending
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          class="nav-link"
+          v-on:click="pendingActive = false"
+          v-bind:class="{ active: !pendingActive }"
+        >
+          Completed
+        </button>
+      </li>
+    </ul>
 
     <!-- todo list -->
-    <ul style="list-style-type: none">
+    <div v-if="pendingActive">
+      <div class="row center-block text-center" style="margin-top: 20px">
+        <h3 v-if="todoList.length === 0">No pending todos</h3>
+      </div>
       <todo-item
         v-for="todo in todoList"
         v-bind:todo="todo"
         v-bind:key="todo.id"
-        v-on:remove-item="removeItem"
+        v-on:delete-todo="deleteTodo"
+        v-on:complete-todo="completeTodo"
       ></todo-item>
-    </ul>
+    </div>
+
+    <!-- completed list -->
+    <div v-if="!pendingActive">
+      <div class="row center-block text-center" style="margin-top: 20px">
+        <h3 v-if="completedTodoList.length === 0">No completed todos</h3>
+      </div>
+      <todo-item
+        v-for="todo in completedTodoList"
+        v-bind:todo="todo"
+        v-bind:key="todo.id"
+        v-on:delete-todo="deleteCompletedTodo"
+        v-on:reopen-todo="reopenTodo"
+      ></todo-item>
+    </div>
   </div>
 </template>
 
@@ -95,17 +137,23 @@ export default {
   mounted() {
     if (JSON.parse(localStorage.getItem("todoList")) !== null) {
       this.todoList = JSON.parse(localStorage.getItem("todoList"));
-      this.nextIndex = this.todoList.length;
+    }
+    if (JSON.parse(localStorage.getItem("completedTodoList")) !== null) {
+      this.completedTodoList = JSON.parse(
+        localStorage.getItem("completedTodoList")
+      );
     }
   },
   data() {
     return {
       todoList: [],
+      completedTodoList: [],
       newTodoItem: "",
       newNotes: "",
-      newDueDate: this.toIsoString(new Date()).slice(0,16),
+      newDueDate: null,
       newPriority: "Medium",
       dateEnabled: false,
+      pendingActive: true,
     };
   },
   methods: {
@@ -120,17 +168,38 @@ export default {
         notes: this.newNotes,
         dueDate: this.dateEnabled ? this.newDueDate : null,
         priority: this.newPriority,
+        completed: false,
+        completedDate: null,
       });
       this.newTodoItem = "";
       this.newNotes = "";
       this.dateEnabled = false;
-      this.newDueDate = this.toIsoString(new Date()).slice(0,16);
+      this.newDueDate = null;
       this.newPriority = "Medium";
     },
-    removeItem(idx) {
+    deleteTodo(idx) {
       this.todoList = this.todoList.filter(function (obj) {
         return obj.id !== idx;
       });
+    },
+    deleteCompletedTodo(idx) {
+      this.completedTodoList = this.completedTodoList.filter(function (obj) {
+        return obj.id !== idx;
+      });
+    },
+    completeTodo(idx) {
+      let data = this.todoList.find((e) => e.id === idx);
+      data.completed = true;
+      data.completedDate = this.toIsoString(new Date()).slice(0, 16);
+      this.completedTodoList.push(data);
+      this.deleteTodo(idx);
+    },
+    reopenTodo(idx) {
+      let data = this.completedTodoList.find((e) => e.id === idx);
+      data.completed = false;
+      data.completedDate = null;
+      this.todoList.push(data);
+      this.deleteCompletedTodo(idx);
     },
     toIsoString(date) {
       var tzo = -date.getTimezoneOffset(),
@@ -166,8 +235,17 @@ export default {
       },
       deep: true,
     },
+    completedTodoList: {
+      handler() {
+        localStorage.setItem(
+          "completedTodoList",
+          JSON.stringify(this.completedTodoList)
+        );
+      },
+      deep: true,
+    },
     dateEnabled: function () {
-      this.newDueDate = this.toIsoString(new Date()).slice(0,16);
+      this.newDueDate = this.toIsoString(new Date()).slice(0, 16);
     },
   },
 };
