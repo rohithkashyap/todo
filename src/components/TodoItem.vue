@@ -5,7 +5,7 @@
       <div class="card" :class="style">
         <!-- value == null also checks for == undefined -->
         <div v-show="todo.completedDate != null" class="card-header">
-          <small class="text-muted">Done {{ todo.completedDate }}</small>
+          <small class="text-muted">🏁 Done {{ todo.completedDate }}</small>
         </div>
         <div class="card-body">
           <h3 class="card-title">{{ todo.text }}</h3>
@@ -14,7 +14,7 @@
           </p>
         </div>
         <div v-show="todo.dueDate != null" class="card-footer">
-          <small class="text-muted">Due {{ todo.dueDate }}</small>
+          <small class="text-muted">⏲ Due {{ todo.dueDate }}</small>
         </div>
       </div>
     </div>
@@ -23,7 +23,7 @@
   <!-- controls for complete or delete -->
   <div class="row">
     <div class="col-4" v-if="todo.completed === false || todo.completed == null">
-      <button class="btn btn-outline-dark form-control" v-on:click="completeTodo()">
+      <button class="btn btn-outline-success form-control" v-on:click="completeTodo()">
         Done ✔️
       </button>
     </div>

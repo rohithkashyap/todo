@@ -59,7 +59,6 @@
         </div>
       </div>
       <div class="row top-buffer">
-        <div class="col"></div>
         <div class="col text-center">
           <button
             class="btn btn-outline-primary form-control"
@@ -68,7 +67,6 @@
             Add ➕
           </button>
         </div>
-        <div class="col"></div>
       </div>
     </form>
 
@@ -252,6 +250,7 @@ export default {
     },
     completedTodoList: {
       handler() {
+        this.filteredCompletedTodoList = this.completedTodoList;
         localStorage.setItem(
           "completedTodoList",
           JSON.stringify(this.completedTodoList)
