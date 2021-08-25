@@ -13,8 +13,18 @@
             {{ todo.notes }}
           </p>
         </div>
-        <div v-show="todo.dueDate != null" class="card-footer">
-          <small class="text-muted">⏲ Due {{ todo.dueDate }}</small>
+        <div
+          v-show="todo.dueDate != null || todo.tags != null"
+          class="card-footer"
+        >
+          <div class="row">
+            <div class="col" v-show="todo.dueDate != null">
+              <small class="text-muted">⏲ Due {{ todo.dueDate }}</small>
+            </div>
+            <div class="col text-end">
+              <span v-for="tag in todo.tags" v-bind:key="tag" class="badge bg-secondary" style="margin-right:5px">{{ tag }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -22,24 +32,36 @@
 
   <!-- controls for complete or delete -->
   <div class="row">
-    <div class="col-4" v-if="todo.completed === false || todo.completed == null">
-      <button class="btn btn-outline-success form-control" v-on:click="completeTodo()">
+    <div
+      class="col-4"
+      v-if="todo.completed === false || todo.completed == null"
+    >
+      <button
+        class="btn btn-outline-success form-control"
+        v-on:click="completeTodo()"
+      >
         Done ✔️
       </button>
     </div>
     <div class="col-4" v-if="todo.completed === true">
-      <button class="btn btn-outline-dark form-control" v-on:click="reopenTodo()">
+      <button
+        class="btn btn-outline-dark form-control"
+        v-on:click="reopenTodo()"
+      >
         Re-open ↩️
       </button>
     </div>
     <div class="col-4"></div>
     <div class="col-4">
-      <button class="btn btn-outline-dark form-control" v-on:click="deleteTodo()">
+      <button
+        class="btn btn-outline-dark form-control"
+        v-on:click="deleteTodo()"
+      >
         Delete ❌
       </button>
     </div>
   </div>
-  <hr>
+  <hr />
 </template>
 
 <script>

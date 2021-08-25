@@ -3,6 +3,7 @@
     <!-- header -->
     <div class="d-flex justify-content-center">
       <h2>Todo</h2>
+      <h6>1.0.0</h6>
     </div>
 
     <!-- Add a todo -->
@@ -29,7 +30,7 @@
             >Due date</label
           >
         </div>
-        <div class="col-5">
+        <div class="col-6">
           <input
             :disabled="!dateEnabled"
             type="datetime-local"
@@ -41,7 +42,7 @@
         <div class="col-4">
           <label for="">Priority</label>
         </div>
-        <div class="col-5">
+        <div class="col-6">
           <select class="form-select" v-model="newPriority">
             <option>High</option>
             <option selected>Medium</option>
@@ -55,6 +56,16 @@
             class="form-control"
             placeholder="Optional notes"
             v-model="newNotes"
+          />
+        </div>
+      </div>
+      <div class="row top-buffer">
+        <div class="col">
+          <input
+            class="form-control"
+            type="text"
+            placeholder="Optional tags"
+            v-model="newTags"
           />
         </div>
       </div>
@@ -77,8 +88,8 @@
       <li class="nav-item">
         <button
           class="nav-link"
-          v-on:click="pendingActive = true"
-          v-bind:class="{ active: pendingActive }"
+          v-on:click="isTodoPending = true"
+          v-bind:class="{ active: isTodoPending }"
         >
           Pending
         </button>
@@ -86,8 +97,8 @@
       <li class="nav-item">
         <button
           class="nav-link"
-          v-on:click="pendingActive = false"
-          v-bind:class="{ active: !pendingActive }"
+          v-on:click="isTodoPending = false"
+          v-bind:class="{ active: !isTodoPending }"
         >
           Completed
         </button>
@@ -102,7 +113,7 @@
     />
 
     <!-- todo list -->
-    <div v-if="pendingActive">
+    <div v-if="isTodoPending">
       <div class="row center-block text-center" style="margin-top: 20px">
         <h3 v-if="filteredTodoList.length === 0">No pending todos</h3>
       </div>
@@ -116,7 +127,7 @@
     </div>
 
     <!-- completed list -->
-    <div v-if="!pendingActive">
+    <div v-if="!isTodoPending">
       <div class="row center-block text-center" style="margin-top: 20px">
         <h3 v-if="filteredCompletedTodoList.length === 0">
           No completed todos
@@ -164,7 +175,8 @@ export default {
       newDueDate: null,
       newPriority: "Medium",
       dateEnabled: false,
-      pendingActive: true,
+      isTodoPending: true,
+      newTags: String(""),
       searchText: String(""),
     };
   },
@@ -174,6 +186,13 @@ export default {
         alert("Invalid entry");
         return;
       }
+      var tagList = []
+      if (this.newTags.includes(",")) {
+        tagList = this.newTags.split(",");
+      }
+      else {
+        tagList = [this.newTags]
+      }
       this.todoList.push({
         id: Date.now(),
         text: this.newTodoItem,
@@ -182,12 +201,14 @@ export default {
         priority: this.newPriority,
         completed: false,
         completedDate: null,
+        tags: tagList,
       });
       this.newTodoItem = "";
       this.newNotes = "";
       this.dateEnabled = false;
       this.newDueDate = null;
       this.newPriority = "Medium";
+      this.newTags = "";
     },
     deleteTodo(idx) {
       this.todoList = this.todoList.filter(function (obj) {
@@ -239,6 +260,18 @@ export default {
         pad(tzo % 60)
       );
     },
+    searchInObject(obj) {
+      var text = obj.text.toLowerCase().includes(this.searchText.toLowerCase());
+      var notes = obj.notes
+        .toLowerCase()
+        .includes(this.searchText.toLowerCase());
+      var tags = false;
+      if (obj.tags != null) {
+        tags = obj.tags.join(',').toLowerCase().includes(this.searchText.toLowerCase());
+      }
+
+      return text || notes || tags;
+    },
   },
   watch: {
     todoList: {
@@ -267,18 +300,14 @@ export default {
         this.filteredTodoList = this.todoList;
         this.filteredCompletedTodoList = this.completedTodoList;
       }
-      // Otherwise, search for todo text
+      // Otherwise, search for todo text, notes, or tags
       else {
-        this.filteredTodoList = this.todoList.filter(
-          (obj) =>
-            obj.text.toLowerCase().includes(this.searchText.toLowerCase()) ||
-            obj.notes.toLowerCase().includes(this.searchText.toLowerCase())
+        this.filteredTodoList = this.todoList.filter((obj) =>
+          this.searchInObject(obj)
         );
 
-        this.filteredCompletedTodoList = this.completedTodoList.filter(
-          (obj) =>
-            obj.text.toLowerCase().includes(this.searchText.toLowerCase()) ||
-            obj.notes.toLowerCase().includes(this.searchText.toLowerCase())
+        this.filteredCompletedTodoList = this.completedTodoList.filter((obj) =>
+          this.searchInObject(obj)
         );
       }
     },
