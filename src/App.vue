@@ -3,7 +3,7 @@
     <!-- header -->
     <div class="d-flex justify-content-center">
       <h2>Todo</h2>
-      <h6>1.0.0</h6>
+      <h6>1.1.0</h6>
     </div>
 
     <!-- Add a todo -->
@@ -153,12 +153,33 @@ export default {
     TodoItem,
   },
   mounted() {
-    if (JSON.parse(localStorage.todoList) !== null) {
-      this.todoList = JSON.parse(localStorage.todoList);
+    if (
+      JSON.parse(localStorage.getItem("tagList") != undefined) &&
+      JSON.parse(localStorage.getItem("tagList") != null) &&
+      JSON.parse(localStorage.getItem("tagColors") != undefined) &&
+      JSON.parse(localStorage.getItem("tagColors") != null)
+    ) {
+      let tagList = JSON.parse(localStorage.getItem("tagList"));
+      let tagColors = JSON.parse(localStorage.getItem("tagColors"));
+      if (tagList.length == tagColors.length) {
+        this.generateTagColorMap(tagList, tagColors);
+      }
+    }
+    if (
+      JSON.parse(localStorage.getItem("todoList") != undefined) &&
+      JSON.parse(localStorage.getItem("todoList") != null)
+    ) {
+      console.log("is not nnull");
+      this.todoList = JSON.parse(localStorage.getItem("todoList"));
       this.filteredTodoList = this.todoList;
     }
-    if (JSON.parse(localStorage.completedTodoList) !== null) {
-      this.completedTodoList = JSON.parse(localStorage.completedTodoList);
+    if (
+      JSON.parse(localStorage.getItem("completedTodoList") != undefined) &&
+      JSON.parse(localStorage.getItem("completedTodoList") != null)
+    ) {
+      this.completedTodoList = JSON.parse(
+        localStorage.getItem("completedTodoList")
+      );
       this.filteredCompletedTodoList = this.completedTodoList;
     }
   },
@@ -176,6 +197,7 @@ export default {
       isTodoPending: true,
       newTags: String(""),
       searchText: String(""),
+      tagFullColorMap: new Map(),
     };
   },
   methods: {
@@ -184,6 +206,7 @@ export default {
         alert("Invalid entry");
         return;
       }
+      let tagArray = this.trimTagsAndSplit(",");
       this.todoList.push({
         id: Date.now(),
         text: this.newTodoItem,
@@ -192,7 +215,8 @@ export default {
         priority: this.newPriority,
         completed: false,
         completedDate: null,
-        tags: this.trimTagsAndSplit(","),
+        tags: tagArray[0],
+        tagColors: tagArray[1],
       });
       this.newTodoItem = "";
       this.newNotes = "";
@@ -268,6 +292,7 @@ export default {
     },
     trimTagsAndSplit(token) {
       let tagList = [];
+      let tagColorMap = [];
 
       // Remove extra whitespace
       let trimmedTags = this.newTags.trim();
@@ -289,7 +314,35 @@ export default {
         tagList = [trimmedTags];
       }
 
-      return tagList;
+      // Loop through tag list to get tag trimmed and assign color
+      for (let i = 0; i < tagList.length; i++) {
+        let tag = tagList.at(i);
+
+        // Check if map has color, otherwise add
+        if (!this.tagFullColorMap.has(tag)) {
+          let testColor = this.getRandomColor();
+          this.tagFullColorMap.set(tag, testColor);
+          console.log("added color");
+        }
+
+        // Assign color to tag
+        tagColorMap.push(this.tagFullColorMap.get(tag));
+      }
+
+      return [tagList, tagColorMap];
+    },
+    getRandomColor() {
+      var letters = "0123456789ABCDEF";
+      var color = "#";
+      for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+      }
+      return color;
+    },
+    generateTagColorMap(keys, values) {
+      for (let i = 0; i < keys.length && i < values.length; i++) {
+        this.tagFullColorMap.set(keys.at(i), values.at(i));
+      }
     },
   },
   watch: {
@@ -304,6 +357,15 @@ export default {
       handler() {
         this.filteredCompletedTodoList = this.completedTodoList;
         localStorage.completedTodoList = JSON.stringify(this.completedTodoList);
+      },
+      deep: true,
+    },
+    tagFullColorMap: {
+      handler() {
+        let keys = Array.from(this.tagFullColorMap.keys());
+        let values = Array.from(this.tagFullColorMap.values());
+        localStorage.setItem("tagList", JSON.stringify(keys));
+        localStorage.setItem("tagColors", JSON.stringify(values));
       },
       deep: true,
     },

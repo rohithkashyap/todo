@@ -21,8 +21,8 @@
             <div class="col-7" v-show="todo.dueDate != null">
               <small class="text-muted">⏲ Due {{ todo.dueDate }}</small>
             </div>
-            <div class="col text-end">
-              <span v-for="tag in todo.tags" v-bind:key="tag" class="badge bg-secondary" style="margin-right:5px">{{ tag }}</span>
+            <div class="col text-end" v-if="todo.tagColors != null">
+              <span v-for="(tag, index) in todo.tags" v-bind:key="tag" class="badge" :style="{'background-color': todo.tagColors[index]}" style="margin-right:5px">{{ tag }}</span>
             </div>
           </div>
         </div>
@@ -74,6 +74,8 @@ export default {
   methods: {
     deleteTodo() {
       this.$emit("delete-todo", this.todo.id);
+//      :style="{'background-color': todo.tagColors.get(todo)}
+
     },
     completeTodo() {
       this.$emit("complete-todo", this.todo.id);
@@ -94,6 +96,10 @@ export default {
         return "border-success";
       }
     },
+    tagStyle(obj) {
+      console.log(obj)
+      return "background-color:" + this.todo.tagColors.get(obj)
+    }
   },
 };
 </script>
