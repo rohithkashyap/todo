@@ -153,14 +153,12 @@ export default {
     TodoItem,
   },
   mounted() {
-    if (JSON.parse(localStorage.getItem("todoList")) !== null) {
-      this.todoList = JSON.parse(localStorage.getItem("todoList"));
+    if (JSON.parse(localStorage.todoList) !== null) {
+      this.todoList = JSON.parse(localStorage.todoList);
       this.filteredTodoList = this.todoList;
     }
-    if (JSON.parse(localStorage.getItem("completedTodoList")) !== null) {
-      this.completedTodoList = JSON.parse(
-        localStorage.getItem("completedTodoList")
-      );
+    if (JSON.parse(localStorage.completedTodoList) !== null) {
+      this.completedTodoList = JSON.parse(localStorage.completedTodoList);
       this.filteredCompletedTodoList = this.completedTodoList;
     }
   },
@@ -186,13 +184,6 @@ export default {
         alert("Invalid entry");
         return;
       }
-      var tagList = []
-      if (this.newTags.includes(",")) {
-        tagList = this.newTags.split(",");
-      }
-      else {
-        tagList = [this.newTags]
-      }
       this.todoList.push({
         id: Date.now(),
         text: this.newTodoItem,
@@ -201,7 +192,7 @@ export default {
         priority: this.newPriority,
         completed: false,
         completedDate: null,
-        tags: tagList,
+        tags: this.trimTagsAndSplit(","),
       });
       this.newTodoItem = "";
       this.newNotes = "";
@@ -235,10 +226,10 @@ export default {
       this.deleteCompletedTodo(idx);
     },
     toIsoString(date) {
-      var tzo = -date.getTimezoneOffset(),
+      let tzo = -date.getTimezoneOffset(),
         dif = tzo >= 0 ? "+" : "-",
         pad = function (num) {
-          var norm = Math.floor(Math.abs(num));
+          let norm = Math.floor(Math.abs(num));
           return (norm < 10 ? "0" : "") + norm;
         };
 
@@ -261,33 +252,58 @@ export default {
       );
     },
     searchInObject(obj) {
-      var text = obj.text.toLowerCase().includes(this.searchText.toLowerCase());
-      var notes = obj.notes
+      let text = obj.text.toLowerCase().includes(this.searchText.toLowerCase());
+      let notes = obj.notes
         .toLowerCase()
         .includes(this.searchText.toLowerCase());
-      var tags = false;
+      let tags = false;
       if (obj.tags != null) {
-        tags = obj.tags.join(',').toLowerCase().includes(this.searchText.toLowerCase());
+        tags = obj.tags
+          .join(",")
+          .toLowerCase()
+          .includes(this.searchText.toLowerCase());
       }
 
       return text || notes || tags;
+    },
+    trimTagsAndSplit(token) {
+      let tagList = [];
+
+      // Remove extra whitespace
+      let trimmedTags = this.newTags.trim();
+      if (!trimmedTags || trimmedTags == token) {
+        return tagList;
+      }
+      // Check if we only have token
+      if (
+        trimmedTags.length > 1 &&
+        trimmedTags.charAt(trimmedTags.length - 1) == token
+      ) {
+        trimmedTags = trimmedTags.slice(0, -1);
+      }
+
+      // Split based on token
+      if (this.newTags.includes(token)) {
+        tagList = trimmedTags.split(token);
+      } else {
+        tagList = [trimmedTags];
+      }
+
+      return tagList;
     },
   },
   watch: {
     todoList: {
       handler() {
         this.filteredTodoList = this.todoList;
-        localStorage.setItem("todoList", JSON.stringify(this.todoList));
+        localStorage.todoList = JSON.stringify(this.todoList);
       },
       deep: true,
     },
     completedTodoList: {
       handler() {
         this.filteredCompletedTodoList = this.completedTodoList;
-        localStorage.setItem(
-          "completedTodoList",
-          JSON.stringify(this.completedTodoList)
-        );
+        localStorage.completedTodoList = JSON.stringify(this.completedTodoList);
       },
       deep: true,
     },

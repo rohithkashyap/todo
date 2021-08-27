@@ -14,11 +14,11 @@
           </p>
         </div>
         <div
-          v-show="todo.dueDate != null || todo.tags != null"
+          v-show="todo.dueDate != null || (todo.tags != null && todo.tags.length != 0)"
           class="card-footer"
         >
           <div class="row">
-            <div class="col" v-show="todo.dueDate != null">
+            <div class="col-7" v-show="todo.dueDate != null">
               <small class="text-muted">⏲ Due {{ todo.dueDate }}</small>
             </div>
             <div class="col text-end">
