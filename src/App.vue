@@ -1,9 +1,17 @@
 <template>
   <div class="container" style="margin-bottom: 50px">
     <!-- header -->
-    <div class="d-flex justify-content-center">
-      <h2>Todo</h2>
-      <h6>1.1.0</h6>
+    <div class="row">
+      <div class="col-2"></div>
+      <div class="col-6">
+        <div class="d-flex justify-content-center">
+          <h2>Todo</h2>
+          <h6>1.1.0</h6>
+        </div>
+      </div>
+      <div class="col">
+        <button type="button" @click.prevent="clearLocalStorage()" class="btn btn-danger btn-sm float-end">Clear all todos</button>
+      </div>
     </div>
 
     <!-- Add a todo -->
@@ -344,6 +352,9 @@ export default {
         this.tagFullColorMap.set(keys.at(i), values.at(i));
       }
     },
+    clearLocalStorage() {
+      localStorage.clear()
+    }
   },
   watch: {
     todoList: {
