@@ -41,7 +41,7 @@
         class="btn btn-outline-success form-control"
         v-on:click="completeTodo()"
       >
-        Done ✔️
+        ✔️
       </button>
     </div>
     <div class="col-4" v-if="todo.completed === true">
@@ -49,7 +49,7 @@
         class="btn btn-outline-dark form-control"
         v-on:click="reopenTodo()"
       >
-        Re-open ↩️
+        ↩️
       </button>
     </div>
     <div class="col-4"></div>
@@ -58,7 +58,7 @@
         class="btn btn-outline-dark form-control"
         v-on:click="deleteTodo()"
       >
-        Delete ❌
+        ❌
       </button>
     </div>
   </div>

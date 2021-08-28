@@ -142,7 +142,7 @@
           v-on:change="searchAllTodos()"
           v-model="textSearchEnabled"
         />
-        <label for="textSearch" class="form-check-label">text</label>
+        <label for="textSearch" class="form-check-label left-buffer">text</label>
       </div>
       <div class="col">
         <input
@@ -152,7 +152,7 @@
           v-on:change="searchAllTodos()"
           v-model="notesSearchEnabled"
         />
-        <label for="notesSearch" class="form-check-label">notes</label>
+        <label for="notesSearch" class="form-check-label left-buffer">notes</label>
       </div>
       <div class="col">
         <input
@@ -162,7 +162,7 @@
           v-on:change="searchAllTodos()"
           v-model="tagsSearchEnabled"
         />
-        <label for="tagsSearch" class="form-check-label">tags</label>
+        <label for="tagsSearch" class="form-check-label left-buffer">tags</label>
       </div>
       <div class="col-2"></div>
     </div>
@@ -494,5 +494,8 @@ export default {
 <style>
 .top-buffer {
   margin-top: 10px;
+}
+.left-buffer {
+  margin-left: 5px;
 }
 </style>
