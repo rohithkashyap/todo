@@ -22,7 +22,8 @@
               <small class="text-muted">⏲ Due {{ todo.dueDate }}</small>
             </div>
             <div class="col text-end" v-if="todo.tagColors != null">
-              <span v-for="(tag, index) in todo.tags" v-bind:key="tag" class="badge" :style="{'background-color': todo.tagColors[index]}" style="margin-right:5px">{{ tag }}</span>
+              <span v-for="(tag, index) in todo.tags || []" v-bind:key="tag" class="badge" :style="{'background-color': todo.tagColors[index]}" style="margin-right:5px">
+                <a href="#" @click.prevent="searchTag(tag)" style="text-decoration: none; text-color:white">{{ tag }}</a></span>
             </div>
           </div>
         </div>
@@ -70,12 +71,10 @@ export default {
   props: {
     todo: Object,
   },
-  emits: ["delete-todo", "complete-todo", "reopen-todo"],
+  emits: ["delete-todo", "complete-todo", "reopen-todo", "search-tag"],
   methods: {
     deleteTodo() {
       this.$emit("delete-todo", this.todo.id);
-//      :style="{'background-color': todo.tagColors.get(todo)}
-
     },
     completeTodo() {
       this.$emit("complete-todo", this.todo.id);
@@ -83,6 +82,9 @@ export default {
     reopenTodo() {
       this.$emit("reopen-todo", this.todo.id);
     },
+    searchTag(tag) {
+      this.$emit("search-tag", tag)
+    }
   },
   computed: {
     style() {
@@ -106,4 +108,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+a, a:visited, a:hover, a:active {
+  color: inherit;
+}
 </style>

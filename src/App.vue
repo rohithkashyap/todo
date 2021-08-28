@@ -2,15 +2,11 @@
   <div class="container" style="margin-bottom: 50px">
     <!-- header -->
     <div class="row">
-      <div class="col-2"></div>
-      <div class="col-6">
+      <div class="col">
         <div class="d-flex justify-content-center">
           <h2>Todo</h2>
-          <h6>1.1.0</h6>
+          <h6>1.2.0</h6>
         </div>
-      </div>
-      <div class="col">
-        <button type="button" @click.prevent="clearLocalStorage()" class="btn btn-danger btn-sm float-end">Clear all todos</button>
       </div>
     </div>
 
@@ -18,73 +14,83 @@
     <form @submit.prevent="addToList()">
       <div class="row">
         <div class="col">
-          <input
-            class="form-control"
-            type="text"
-            placeholder="Add a todo..."
-            v-model="newTodoItem"
-          />
+          <div class="input-group top-buffer">
+            <span class="input-group-text" id="newTodoEdit">📝</span>
+
+            <input
+              class="form-control"
+              type="text"
+              placeholder="Add a todo..."
+              aria-describedby="newTodoEdit"
+              v-model="newTodoItem"
+            />
+          </div>
         </div>
       </div>
-      <div class="row top-buffer">
-        <div class="col-4">
-          <input
-            class="form-check-input"
-            type="checkbox"
-            v-model="dateEnabled"
-            id="dueDateCheckbox"
-          />
-          <label style="margin-left: 10px" for="dueDateCheckbox"
-            >Due date</label
-          >
+      <div v-show="newTodoItem.length">
+        <div class="row top-buffer">
+          <div class="col-4">
+            <input
+              class="form-check-input"
+              type="checkbox"
+              v-model="dateEnabled"
+              id="dueDateCheckbox"
+            />
+            <label
+              class="form-check-label"
+              style="margin-left: 10px"
+              for="dueDateCheckbox"
+              >Due date</label
+            >
+          </div>
+          <div class="col-6">
+            <input
+              :disabled="!dateEnabled"
+              type="datetime-local"
+              v-model="newDueDate"
+            />
+          </div>
         </div>
-        <div class="col-6">
-          <input
-            :disabled="!dateEnabled"
-            type="datetime-local"
-            v-model="newDueDate"
-          />
+        <div class="row top-buffer">
+          <div class="col-4">
+            <label for="">Priority</label>
+          </div>
+          <div class="col-6">
+            <select class="form-select" v-model="newPriority">
+              <option>High</option>
+              <option selected>Medium</option>
+              <option>Low</option>
+            </select>
+          </div>
         </div>
-      </div>
-      <div class="row top-buffer">
-        <div class="col-4">
-          <label for="">Priority</label>
+        <div class="row top-buffer">
+          <div class="col">
+            <textarea
+              class="form-control"
+              placeholder="Optional notes"
+              v-model="newNotes"
+            />
+          </div>
         </div>
-        <div class="col-6">
-          <select class="form-select" v-model="newPriority">
-            <option>High</option>
-            <option selected>Medium</option>
-            <option>Low</option>
-          </select>
+        <div class="row top-buffer">
+          <div class="col">
+            <input
+              class="form-control"
+              type="text"
+              placeholder="Optional tags"
+              v-model="newTags"
+            />
+          </div>
         </div>
-      </div>
-      <div class="row top-buffer">
-        <div class="col">
-          <textarea
-            class="form-control"
-            placeholder="Optional notes"
-            v-model="newNotes"
-          />
-        </div>
-      </div>
-      <div class="row top-buffer">
-        <div class="col">
-          <input
-            class="form-control"
-            type="text"
-            placeholder="Optional tags"
-            v-model="newTags"
-          />
-        </div>
-      </div>
-      <div class="row top-buffer">
-        <div class="col text-center">
-          <button
-            class="btn btn-outline-primary form-control"
-            :disabled="newTodoItem === ''"
-          >
-            Add ➕
-          </button>
+        <div class="row top-buffer">
+          <div class="col text-center">
+            <button
+              class="btn btn-outline-primary form-control"
+              :disabled="newTodoItem === ''"
+            >
+              Add ➕
+            </button>
+          </div>
         </div>
       </div>
     </form>
@@ -113,12 +119,53 @@
       </li>
     </ul>
 
-    <input
-      class="form-control top-buffer"
-      type="text"
-      placeholder="Search..."
-      v-model="searchText"
-    />
+    <!-- Search -->
+    <div class="row">
+      <div class="input-group top-buffer">
+        <span class="input-group-text" id="searchEdit">🔍</span>
+        <input
+          type="text"
+          class="form-control"
+          placeholder="Search..."
+          aria-describedby="searchEdit"
+          v-model="searchText"
+        />
+      </div>
+    </div>
+    <div class="row align-items-center top-buffer" v-show="searchText.length">
+      <div class="col-2"></div>
+      <div class="col">
+        <input
+          type="checkbox"
+          id="textSearch"
+          class="form-check-input"
+          v-on:change="searchAllTodos()"
+          v-model="textSearchEnabled"
+        />
+        <label for="textSearch" class="form-check-label">text</label>
+      </div>
+      <div class="col">
+        <input
+          type="checkbox"
+          id="notesSearch"
+          class="form-check-input"
+          v-on:change="searchAllTodos()"
+          v-model="notesSearchEnabled"
+        />
+        <label for="notesSearch" class="form-check-label">notes</label>
+      </div>
+      <div class="col">
+        <input
+          type="checkbox"
+          id="tagsSearch"
+          class="form-check-input"
+          v-on:change="searchAllTodos()"
+          v-model="tagsSearchEnabled"
+        />
+        <label for="tagsSearch" class="form-check-label">tags</label>
+      </div>
+      <div class="col-2"></div>
+    </div>
 
     <!-- todo list -->
     <div v-if="isTodoPending">
@@ -126,11 +173,12 @@
         <h3 v-if="filteredTodoList.length === 0">No pending todos</h3>
       </div>
       <todo-item
-        v-for="todo in filteredTodoList"
+        v-for="todo in filteredTodoList || []"
         v-bind:todo="todo"
         v-bind:key="todo.id"
         v-on:delete-todo="deleteTodo"
         v-on:complete-todo="completeTodo"
+        v-on:search-tag="searchTagTodo"
       ></todo-item>
     </div>
 
@@ -142,11 +190,12 @@
         </h3>
       </div>
       <todo-item
-        v-for="todo in filteredCompletedTodoList"
+        v-for="todo in filteredCompletedTodoList || []"
         v-bind:todo="todo"
         v-bind:key="todo.id"
         v-on:delete-todo="deleteCompletedTodo"
         v-on:reopen-todo="reopenTodo"
+        v-on:search-tag="searchTagTodo"
       ></todo-item>
     </div>
   </div>
@@ -177,7 +226,6 @@ export default {
       JSON.parse(localStorage.getItem("todoList") != undefined) &&
       JSON.parse(localStorage.getItem("todoList") != null)
     ) {
-      console.log("is not nnull");
       this.todoList = JSON.parse(localStorage.getItem("todoList"));
       this.filteredTodoList = this.todoList;
     }
@@ -206,6 +254,10 @@ export default {
       newTags: String(""),
       searchText: String(""),
       tagFullColorMap: new Map(),
+      showSearch: false,
+      textSearchEnabled: true,
+      notesSearchEnabled: true,
+      tagsSearchEnabled: true,
     };
   },
   methods: {
@@ -223,8 +275,8 @@ export default {
         priority: this.newPriority,
         completed: false,
         completedDate: null,
-        tags: tagArray[0],
-        tagColors: tagArray[1],
+        tags: tagArray.length > 0 ? tagArray[0] : [],
+        tagColors: tagArray.length > 0 ? tagArray[1] : [],
       });
       this.newTodoItem = "";
       this.newNotes = "";
@@ -257,6 +309,12 @@ export default {
       this.todoList.push(data);
       this.deleteCompletedTodo(idx);
     },
+    searchTagTodo(tag) {
+      this.textSearchEnabled = false;
+      this.notesSearchEnabled = false;
+      this.tagsSearchEnabled = true;
+      this.searchText = tag;
+    },
     toIsoString(date) {
       let tzo = -date.getTimezoneOffset(),
         dif = tzo >= 0 ? "+" : "-",
@@ -283,29 +341,70 @@ export default {
         pad(tzo % 60)
       );
     },
-    searchInObject(obj) {
-      let text = obj.text.toLowerCase().includes(this.searchText.toLowerCase());
-      let notes = obj.notes
-        .toLowerCase()
-        .includes(this.searchText.toLowerCase());
-      let tags = false;
-      if (obj.tags != null) {
-        tags = obj.tags
+    searchInObject(obj, searchText, searchNotes, searchTags) {
+      if (!searchText && !searchNotes && !searchTags) {
+        return;
+      }
+      let textFound = false,
+        notesFound = false,
+        tagsFound = false;
+
+      if (searchText) {
+        textFound = obj.text
+          .toLowerCase()
+          .includes(this.searchText.toLowerCase());
+      }
+
+      if (searchNotes) {
+        notesFound = obj.notes
+          .toLowerCase()
+          .includes(this.searchText.toLowerCase());
+      }
+
+      if (searchTags) {
+        tagsFound = obj.tags
           .join(",")
           .toLowerCase()
           .includes(this.searchText.toLowerCase());
       }
 
-      return text || notes || tags;
+      return textFound || notesFound || tagsFound;
+    },
+    searchAllTodos() {
+      // If empty, return full array
+      if (!this.searchText) {
+        this.filteredTodoList = this.todoList;
+        this.filteredCompletedTodoList = this.completedTodoList;
+      }
+      // Otherwise, search for todo text, notes, or tags
+      else {
+        this.filteredTodoList = this.todoList.filter((obj) =>
+          this.searchInObject(
+            obj,
+            this.textSearchEnabled,
+            this.notesSearchEnabled,
+            this.tagsSearchEnabled
+          )
+        );
+
+        this.filteredCompletedTodoList = this.completedTodoList.filter((obj) =>
+          this.searchInObject(
+            obj,
+            this.textSearchEnabled,
+            this.notesSearchEnabled,
+            this.tagsSearchEnabled
+          )
+        );
+      }
     },
     trimTagsAndSplit(token) {
       let tagList = [];
-      let tagColorMap = [];
+      let tagColorList = [];
 
       // Remove extra whitespace
       let trimmedTags = this.newTags.trim();
       if (!trimmedTags || trimmedTags == token) {
-        return tagList;
+        return [tagList, tagColorList];
       }
       // Check if we only have token
       if (
@@ -324,23 +423,22 @@ export default {
 
       // Loop through tag list to get tag trimmed and assign color
       for (let i = 0; i < tagList.length; i++) {
-        let tag = tagList.at(i);
+        let tag = tagList[i];
 
         // Check if map has color, otherwise add
         if (!this.tagFullColorMap.has(tag)) {
           let testColor = this.getRandomColor();
           this.tagFullColorMap.set(tag, testColor);
-          console.log("added color");
         }
 
         // Assign color to tag
-        tagColorMap.push(this.tagFullColorMap.get(tag));
+        tagColorList.push(this.tagFullColorMap.get(tag));
       }
 
-      return [tagList, tagColorMap];
+      return [tagList, tagColorList];
     },
     getRandomColor() {
-      var letters = "0123456789ABCDEF";
+      var letters = "3333456789ABCCCC";
       var color = "#";
       for (var i = 0; i < 6; i++) {
         color += letters[Math.floor(Math.random() * 16)];
@@ -349,12 +447,12 @@ export default {
     },
     generateTagColorMap(keys, values) {
       for (let i = 0; i < keys.length && i < values.length; i++) {
-        this.tagFullColorMap.set(keys.at(i), values.at(i));
+        this.tagFullColorMap.set(keys[i], values[i]);
       }
     },
     clearLocalStorage() {
-      localStorage.clear()
-    }
+      localStorage.clear();
+    },
   },
   watch: {
     todoList: {
@@ -384,21 +482,10 @@ export default {
       this.newDueDate = this.toIsoString(new Date()).slice(0, 16);
     },
     searchText: function () {
-      // If empty, return full array
-      if (!this.searchText) {
-        this.filteredTodoList = this.todoList;
-        this.filteredCompletedTodoList = this.completedTodoList;
+      if (this.searchText == "CLEARLOCALSTORAGE") {
+        this.clearLocalStorage();
       }
-      // Otherwise, search for todo text, notes, or tags
-      else {
-        this.filteredTodoList = this.todoList.filter((obj) =>
-          this.searchInObject(obj)
-        );
-
-        this.filteredCompletedTodoList = this.completedTodoList.filter((obj) =>
-          this.searchInObject(obj)
-        );
-      }
+      this.searchAllTodos();
     },
   },
 };
