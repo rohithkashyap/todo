@@ -11,91 +11,93 @@
     </div>
 
     <!-- Add a todo -->
-    <form @submit.prevent="addToList()">
-      <div class="row">
-        <div class="col">
-          <div class="input-group top-buffer">
-            <span class="input-group-text" id="newTodoEdit">📝</span>
-
-            <input
-              class="form-control"
-              type="text"
-              placeholder="Add a todo..."
-              aria-describedby="newTodoEdit"
-              v-model="newTodoItem"
-            />
+    <div class="sticky container">
+      <form @submit.prevent="addToList()">
+        <div v-show="newTodoItem.length">
+          <div class="row top-buffer">
+            <div class="col">
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Optional tags"
+                v-model="newTags"
+              />
+            </div>
+          </div>
+          <div class="row top-buffer">
+            <div class="col">
+              <textarea
+                class="form-control"
+                placeholder="Optional notes"
+                v-model="newNotes"
+              />
+            </div>
+          </div>
+          <div class="row top-buffer">
+            <div class="col-4">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                v-model="dateEnabled"
+                id="dueDateCheckbox"
+              />
+              <label
+                class="form-check-label"
+                style="margin-left: 10px"
+                for="dueDateCheckbox"
+                >Due date</label
+              >
+            </div>
+            <div class="col-6">
+              <input
+                :disabled="!dateEnabled"
+                type="datetime-local"
+                v-model="newDueDate"
+              />
+            </div>
+          </div>
+          <div class="row top-buffer">
+            <div class="col-4">
+              <label for="">Priority</label>
+            </div>
+            <div class="col-6">
+              <select class="form-select" v-model="newPriority">
+                <option>High</option>
+                <option selected>Medium</option>
+                <option>Low</option>
+              </select>
+            </div>
+          </div>
+          <div class="row top-buffer">
+            <div class="col text-center">
+              <button
+                class="btn btn-outline-primary form-control"
+                :disabled="newTodoItem === ''"
+              >
+                Add ➕
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      <div v-show="newTodoItem.length">
-        <div class="row top-buffer">
-          <div class="col-4">
-            <input
-              class="form-check-input"
-              type="checkbox"
-              v-model="dateEnabled"
-              id="dueDateCheckbox"
-            />
-            <label
-              class="form-check-label"
-              style="margin-left: 10px"
-              for="dueDateCheckbox"
-              >Due date</label
-            >
-          </div>
-          <div class="col-6">
-            <input
-              :disabled="!dateEnabled"
-              type="datetime-local"
-              v-model="newDueDate"
-            />
-          </div>
-        </div>
-        <div class="row top-buffer">
-          <div class="col-4">
-            <label for="">Priority</label>
-          </div>
-          <div class="col-6">
-            <select class="form-select" v-model="newPriority">
-              <option>High</option>
-              <option selected>Medium</option>
-              <option>Low</option>
-            </select>
-          </div>
-        </div>
-        <div class="row top-buffer">
+        <div class="row">
           <div class="col">
-            <textarea
-              class="form-control"
-              placeholder="Optional notes"
-              v-model="newNotes"
-            />
-          </div>
-        </div>
-        <div class="row top-buffer">
-          <div class="col">
-            <input
-              class="form-control"
-              type="text"
-              placeholder="Optional tags"
-              v-model="newTags"
-            />
-          </div>
-        </div>
-        <div class="row top-buffer">
-          <div class="col text-center">
-            <button
-              class="btn btn-outline-primary form-control"
-              :disabled="newTodoItem === ''"
-            >
-              Add ➕
-            </button>
-          </div>
-        </div>
-      </div>
-    </form>
+            <div class="input-group top-buffer">
+              <span class="input-group-text" id="newTodoEdit">📝</span>
 
-    <hr style="margin-top: 50px" />
+              <input
+                class="form-control"
+                type="text"
+                placeholder="Add a todo..."
+                aria-describedby="newTodoEdit"
+                v-model="newTodoItem"
+              />
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <hr style="margin-top: 5px" />
 
     <!-- Tab for pending/completed -->
     <ul class="nav nav-pills nav-fill">
@@ -142,7 +144,9 @@
           v-on:change="searchAllTodos()"
           v-model="textSearchEnabled"
         />
-        <label for="textSearch" class="form-check-label left-buffer">text</label>
+        <label for="textSearch" class="form-check-label left-buffer"
+          >text</label
+        >
       </div>
       <div class="col">
         <input
@@ -152,7 +156,9 @@
           v-on:change="searchAllTodos()"
           v-model="notesSearchEnabled"
         />
-        <label for="notesSearch" class="form-check-label left-buffer">notes</label>
+        <label for="notesSearch" class="form-check-label left-buffer"
+          >notes</label
+        >
       </div>
       <div class="col">
         <input
@@ -162,7 +168,9 @@
           v-on:change="searchAllTodos()"
           v-model="tagsSearchEnabled"
         />
-        <label for="tagsSearch" class="form-check-label left-buffer">tags</label>
+        <label for="tagsSearch" class="form-check-label left-buffer"
+          >tags</label
+        >
       </div>
       <div class="col-2"></div>
     </div>
@@ -497,5 +505,17 @@ export default {
 }
 .left-buffer {
   margin-left: 5px;
+}
+.sticky {
+  position: fixed;
+  bottom: 0;
+  padding-top: 1%;
+  padding-bottom: 1%;
+  padding-right: 2%;
+  width: 90%;
+  left: 5%;
+  z-index: 2;
+  background-color: #e0e0e0;
+  border: 2px solid #4e4caf;
 }
 </style>
