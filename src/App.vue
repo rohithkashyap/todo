@@ -506,6 +506,7 @@ export default {
 .left-buffer {
   margin-left: 5px;
 }
+
 .sticky {
   position: fixed;
   bottom: 0;
@@ -515,7 +516,7 @@ export default {
   width: 90%;
   left: 5%;
   z-index: 2;
-  background-color: #e0e0e0;
+  background-color: #000000;
   border: 2px solid #4e4caf;
 }
 </style>
