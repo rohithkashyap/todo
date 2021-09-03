@@ -5,7 +5,7 @@
       <div class="col">
         <div class="d-flex justify-content-center">
           <h2>Todo</h2>
-          <h6>1.2.0</h6>
+          <h6>1.3.0</h6>
         </div>
       </div>
     </div>
@@ -207,6 +207,7 @@
       ></todo-item>
     </div>
   </div>
+  <div style="height:50px"></div>
 </template>
 
 <script>
@@ -511,8 +512,9 @@ export default {
   position: fixed;
   bottom: 0;
   padding-top: 1%;
-  padding-bottom: 1%;
+  padding-bottom: 3%;
   padding-right: 2%;
+  margin-bottom: 2%;
   width: 90%;
   left: 5%;
   z-index: 2;

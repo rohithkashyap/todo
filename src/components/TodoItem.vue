@@ -1,5 +1,5 @@
 <template>
-  <div class="row" style="margin-top: 20px">
+  <div class="row">
     <div class="col">
       <!-- add a card for todo -->
       <div class="card" :class="style">
@@ -7,14 +7,68 @@
         <div v-show="todo.completedDate != null" class="card-header">
           <small class="text-muted">🏁 Done {{ todo.completedDate }}</small>
         </div>
+        <!-- body -->
         <div class="card-body">
-          <h3 class="card-title">{{ todo.text }}</h3>
-          <p class="card-text" style="white-space: pre-wrap">
+          <div class="row">
+            <div class="col-1">
+              <input
+                class="form-check-input"
+                style="margin-top: 10px"
+                type="checkbox"
+                v-on:change="completeOrReopenTodo()"
+                :checked="todo.completed === true"
+              />
+            </div>
+            <div class="col">
+              <a
+                class="form-check-label"
+                style="
+                  font-size: 22px;
+                  text-decoration: none;
+                  text-color: white;
+                "
+                @click.prevent="expandNotes = !expandNotes"
+                >{{ todo.text }}</a
+              >
+            </div>
+            <div class="col-2" v-if="todo.notes != ''">
+              <button
+                class="btn"
+                v-if="!expandNotes"
+                v-on:click="expandNotes = true"
+              >
+                🔽
+              </button>
+              <button
+                class="btn"
+                v-if="expandNotes"
+                v-on:click="expandNotes = false"
+              >
+                🔼
+              </button>
+            </div>
+            <!-- <div class="col-1">
+              <button class="btn btn-outline-dark" v-on:click="deleteTodo()">
+                ❌
+              </button>
+            </div> -->
+          </div>
+          <p
+            id="collapseOne"
+            v-if="expandNotes"
+            class="card-text collapse show"
+            data-parent="#accordion"
+            style="white-space: pre-wrap"
+          >
             {{ todo.notes }}
           </p>
         </div>
+
+        <!-- footer -->
         <div
-          v-show="todo.dueDate != null || (todo.tags != null && todo.tags.length != 0)"
+          v-show="
+            todo.dueDate != null || (todo.tags != null && todo.tags.length != 0)
+          "
           class="card-footer"
         >
           <div class="row">
@@ -22,52 +76,37 @@
               <small class="text-muted">⏲ Due {{ todo.dueDate }}</small>
             </div>
             <div class="col text-end" v-if="todo.tagColors != null">
-              <span v-for="(tag, index) in todo.tags || []" v-bind:key="tag" class="badge" :style="{'background-color': todo.tagColors[index]}" style="margin-right:5px">
-                <a href="#" @click.prevent="searchTag(tag)" style="text-decoration: none; text-color:white">{{ tag }}</a></span>
+              <span
+                v-for="(tag, index) in todo.tags || []"
+                v-bind:key="tag"
+                class="badge"
+                :style="{ 'background-color': todo.tagColors[index] }"
+                style="margin-right: 5px"
+              >
+                <a
+                  href="#"
+                  @click.prevent="searchTag(tag)"
+                  style="text-decoration: none; text-color: white"
+                  >{{ tag }}</a
+                ></span
+              >
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- controls for complete or delete -->
-  <div class="row">
-    <div
-      class="col-4"
-      v-if="todo.completed === false || todo.completed == null"
-    >
-      <button
-        class="btn btn-outline-success form-control"
-        v-on:click="completeTodo()"
-      >
-        ✔️
-      </button>
-    </div>
-    <div class="col-4" v-if="todo.completed === true">
-      <button
-        class="btn btn-outline-dark form-control"
-        v-on:click="reopenTodo()"
-      >
-        ↩️
-      </button>
-    </div>
-    <div class="col-4"></div>
-    <div class="col-4">
-      <button
-        class="btn btn-outline-dark form-control"
-        v-on:click="deleteTodo()"
-      >
-        ❌
-      </button>
-    </div>
-  </div>
-  <hr />
+  <div style="margin-bottom: 5px"></div>
 </template>
 
 <script>
 export default {
   name: "TodoItem",
+  data() {
+    return {
+      expandNotes: false,
+    };
+  },
   props: {
     todo: Object,
   },
@@ -76,15 +115,16 @@ export default {
     deleteTodo() {
       this.$emit("delete-todo", this.todo.id);
     },
-    completeTodo() {
-      this.$emit("complete-todo", this.todo.id);
-    },
-    reopenTodo() {
-      this.$emit("reopen-todo", this.todo.id);
+    completeOrReopenTodo() {
+      if (this.todo.completed === true) {
+        this.$emit("reopen-todo", this.todo.id);
+      } else {
+        this.$emit("complete-todo", this.todo.id);
+      }
     },
     searchTag(tag) {
-      this.$emit("search-tag", tag)
-    }
+      this.$emit("search-tag", tag);
+    },
   },
   computed: {
     style() {
@@ -99,16 +139,21 @@ export default {
       }
     },
     tagStyle(obj) {
-      console.log(obj)
-      return "background-color:" + this.todo.tagColors.get(obj)
-    }
+      return "background-color:" + this.todo.tagColors.get(obj);
+    },
   },
 };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-a, a:visited, a:hover, a:active {
+a,
+a:visited,
+a:hover,
+a:active {
   color: inherit;
+}
+input[type="checkbox"] {
+  transform: scale(2);
 }
 </style>
