@@ -133,7 +133,7 @@ export default {
       } else if (this.todo.priority === "High") {
         return "border-danger";
       } else if (this.todo.priority === "Medium") {
-        return "border-primary";
+        return "border-dark";
       } else {
         return "border-success";
       }
