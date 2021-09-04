@@ -207,7 +207,7 @@
       ></todo-item>
     </div>
   </div>
-  <div style="height:50px"></div>
+  <div style="height: 50px"></div>
 </template>
 
 <script>
@@ -272,7 +272,7 @@ export default {
   methods: {
     addToList() {
       if (this.newTodoItem === "") {
-        alert("Invalid entry");
+        this.$toast.error("Cannot add empty todo");
         return;
       }
       let tagArray = this.trimTagsAndSplit(",");
@@ -310,6 +310,7 @@ export default {
       data.completedDate = this.toIsoString(new Date()).slice(0, 16);
       this.completedTodoList.push(data);
       this.deleteTodo(idx);
+      this.$toast.success("Marked complete");
     },
     reopenTodo(idx) {
       let data = this.completedTodoList.find((e) => e.id === idx);
@@ -317,6 +318,7 @@ export default {
       data.completedDate = null;
       this.todoList.push(data);
       this.deleteCompletedTodo(idx);
+      this.$toast.info("Re-opened todo");
     },
     searchTagTodo(tag) {
       this.textSearchEnabled = false;
@@ -461,6 +463,7 @@ export default {
     },
     clearLocalStorage() {
       localStorage.clear();
+      this.$toast.error("Local storage cleared. Refresh page before making any changes");
     },
   },
   watch: {

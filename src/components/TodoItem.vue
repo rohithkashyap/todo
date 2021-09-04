@@ -4,7 +4,7 @@
       <!-- add a card for todo -->
       <div class="card" :class="style">
         <!-- value == null also checks for == undefined -->
-        <div v-show="todo.completedDate != null" class="card-header">
+        <div v-if="todo.completedDate != null" class="card-header">
           <small class="text-muted">🏁 Done {{ todo.completedDate }}</small>
         </div>
         <!-- body -->
@@ -13,23 +13,13 @@
             <div class="col-1">
               <input
                 class="form-check-input"
-                style="margin-top: 10px"
                 type="checkbox"
                 v-on:change="completeOrReopenTodo()"
                 :checked="todo.completed === true"
               />
             </div>
             <div class="col">
-              <a
-                class="form-check-label"
-                style="
-                  font-size: 22px;
-                  text-decoration: none;
-                  text-color: white;
-                "
-                @click.prevent="expandNotes = !expandNotes"
-                >{{ todo.text }}</a
-              >
+              <p>{{ todo.text }}</p>
             </div>
             <div class="col-2" v-if="todo.notes != ''">
               <button
@@ -57,7 +47,6 @@
             id="collapseOne"
             v-if="expandNotes"
             class="card-text collapse show"
-            data-parent="#accordion"
             style="white-space: pre-wrap"
           >
             {{ todo.notes }}
@@ -67,7 +56,9 @@
         <!-- footer -->
         <div
           v-show="
-            todo.dueDate != null || (todo.tags != null && todo.tags.length != 0)
+            (todo.dueDate != null ||
+              (todo.tags != null && todo.tags.length != 0)) &&
+            expandNotes
           "
           class="card-footer"
         >
@@ -138,9 +129,6 @@ export default {
         return "border-success";
       }
     },
-    tagStyle(obj) {
-      return "background-color:" + this.todo.tagColors.get(obj);
-    },
   },
 };
 </script>
@@ -154,6 +142,6 @@ a:active {
   color: inherit;
 }
 input[type="checkbox"] {
-  transform: scale(2);
+  transform: scale(1.5);
 }
 </style>
