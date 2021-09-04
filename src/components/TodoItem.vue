@@ -21,7 +21,7 @@
             <div class="col">
               <p>{{ todo.text }}</p>
             </div>
-            <div class="col-2" v-if="todo.notes != ''">
+            <div class="col-2" v-if="todo.notes != '' || todo.dueDate != null ||  (todo.tags != null && todo.tags.length != 0)">
               <button
                 class="btn"
                 v-if="!expandNotes"
