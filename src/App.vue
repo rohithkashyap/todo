@@ -21,7 +21,15 @@
                 type="text"
                 placeholder="Optional tags"
                 v-model="newTags"
+                list="allTheTags"
               />
+              <datalist id="allTheTags">
+                <option
+                  v-for="[tag, tagColor] in tagFullColorMap"
+                  :value="tag"
+                  :key="tagColor"
+                />
+              </datalist>
             </div>
           </div>
           <div class="row top-buffer">
@@ -463,7 +471,9 @@ export default {
     },
     clearLocalStorage() {
       localStorage.clear();
-      this.$toast.error("Local storage cleared. Refresh page before making any changes");
+      this.$toast.error(
+        "Local storage cleared. Refresh page before making any changes"
+      );
     },
   },
   watch: {
