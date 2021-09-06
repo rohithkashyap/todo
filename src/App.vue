@@ -1,19 +1,32 @@
 <template>
   <div class="container" style="margin-bottom: 50px">
-    <!-- header -->
-    <div class="row">
-      <div class="col">
-        <div class="d-flex justify-content-center">
-          <h2>Todo</h2>
-          <h6>1.3.0</h6>
+    <nav class="navbar navbar-expand-md navbar-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Todo 1.4.0</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNavAltMarkup"
+          aria-controls="navbarNavAltMarkup"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-link" @click="showDelete = !showDelete">{{ showDelete ? "Hide delete" : "Show delete"}}</a>
+          </div>
         </div>
       </div>
-    </div>
+    </nav>
 
     <!-- Add a todo -->
     <div class="sticky container">
       <form @submit.prevent="addToList()">
         <div v-show="newTodoItem.length">
+          <!-- tags -->
           <div class="row top-buffer">
             <div class="col">
               <input
@@ -32,6 +45,7 @@
               </datalist>
             </div>
           </div>
+          <!-- notes -->
           <div class="row top-buffer">
             <div class="col">
               <textarea
@@ -41,6 +55,7 @@
               />
             </div>
           </div>
+          <!-- date -->
           <div class="row top-buffer">
             <div class="col-4">
               <input
@@ -64,6 +79,26 @@
               />
             </div>
           </div>
+          <!-- repeat -->
+          <div class="row top-buffer">
+            <div class="col-4">
+              <label for="">Repeat</label>
+            </div>
+            <div class="col-6">
+              <select
+                :disabled="!dateEnabled"
+                class="form-select"
+                v-model="newRepeatFrequency"
+              >
+                <option>None</option>
+                <option>Daily</option>
+                <option>Weekly</option>
+                <option>Monthly</option>
+                <option>Yearly</option>
+              </select>
+            </div>
+          </div>
+          <!-- priority -->
           <div class="row top-buffer">
             <div class="col-4">
               <label for="">Priority</label>
@@ -76,6 +111,7 @@
               </select>
             </div>
           </div>
+          <!-- add button -->
           <div class="row top-buffer">
             <div class="col text-center">
               <button
@@ -87,6 +123,7 @@
             </div>
           </div>
         </div>
+        <!-- todo input -->
         <div class="row">
           <div class="col">
             <div class="input-group top-buffer">
@@ -134,7 +171,7 @@
       <div class="input-group top-buffer">
         <span class="input-group-text" id="searchEdit">🔍</span>
         <input
-          type="text"
+          type="search"
           class="form-control"
           placeholder="Search..."
           aria-describedby="searchEdit"
@@ -192,6 +229,7 @@
         v-for="todo in filteredTodoList || []"
         v-bind:todo="todo"
         v-bind:key="todo.id"
+        v-bind:showDelete="showDelete"        
         v-on:delete-todo="deleteTodo"
         v-on:complete-todo="completeTodo"
         v-on:search-tag="searchTagTodo"
@@ -209,6 +247,7 @@
         v-for="todo in filteredCompletedTodoList || []"
         v-bind:todo="todo"
         v-bind:key="todo.id"
+        v-bind:showDelete="showDelete"        
         v-on:delete-todo="deleteCompletedTodo"
         v-on:reopen-todo="reopenTodo"
         v-on:search-tag="searchTagTodo"
@@ -243,7 +282,8 @@ export default {
       JSON.parse(localStorage.getItem("todoList") != undefined) &&
       JSON.parse(localStorage.getItem("todoList") != null)
     ) {
-      this.todoList = JSON.parse(localStorage.getItem("todoList"));
+      let storedList = JSON.parse(localStorage.getItem("todoList"));
+      this.todoList = this.convertToLatestTodo(storedList);
       this.filteredTodoList = this.todoList;
     }
     if (
@@ -266,6 +306,7 @@ export default {
       newNotes: String(""),
       newDueDate: null,
       newPriority: "Medium",
+      newRepeatFrequency: "None",
       dateEnabled: false,
       isTodoPending: true,
       newTags: String(""),
@@ -275,6 +316,7 @@ export default {
       textSearchEnabled: true,
       notesSearchEnabled: true,
       tagsSearchEnabled: true,
+      showDelete: false,
     };
   },
   methods: {
@@ -290,17 +332,22 @@ export default {
         notes: this.newNotes,
         dueDate: this.dateEnabled ? this.newDueDate : null,
         priority: this.newPriority,
+        repeatFrequency: this.dateEnabled ? this.newRepeatFrequency : "None",
         completed: false,
         completedDate: null,
         tags: tagArray.length > 0 ? tagArray[0] : [],
         tagColors: tagArray.length > 0 ? tagArray[1] : [],
       });
+      this.resetVars();
+    },
+    resetVars() {
       this.newTodoItem = "";
       this.newNotes = "";
       this.dateEnabled = false;
       this.newDueDate = null;
       this.newPriority = "Medium";
       this.newTags = "";
+      this.newRepeatFrequency = "None";
     },
     deleteTodo(idx) {
       this.todoList = this.todoList.filter(function (obj) {
@@ -314,10 +361,41 @@ export default {
     },
     completeTodo(idx) {
       let data = this.todoList.find((e) => e.id === idx);
-      data.completed = true;
-      data.completedDate = this.toIsoString(new Date()).slice(0, 16);
-      this.completedTodoList.push(data);
-      this.deleteTodo(idx);
+
+      // Complete the todo first
+      let completedData = { ...data };
+      completedData.completed = true;
+      completedData.completedDate = this.toIsoString(new Date()).slice(0, 16);
+      this.completedTodoList.push(completedData);
+
+      // Make changes as necessary
+      if (data.repeatFrequency == "Daily") {
+        data.completed = false;
+        data.completedDate = null;
+        let updateDueDate = new Date(data.dueDate);
+        updateDueDate.setDate(updateDueDate.getDate() + 1);
+        data.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
+      } else if (data.repeatFrequency == "Weekly") {
+        data.completed = false;
+        data.completedDate = null;
+        let updateDueDate = new Date(data.dueDate);
+        updateDueDate.setDate(updateDueDate.getDate() + 7);
+        data.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
+      } else if (data.repeatFrequency == "Monthly") {
+        data.completed = false;
+        data.completedDate = null;
+        let updateDueDate = new Date(data.dueDate);
+        updateDueDate.setMonth(updateDueDate.getMonth() + 1);
+        data.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
+      } else if (data.repeatFrequency == "Yearly") {
+        data.completed = false;
+        data.completedDate = null;
+        let updateDueDate = new Date(data.dueDate);
+        updateDueDate.setFullYear(updateDueDate.getFullYear() + 1);
+        data.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
+      } else {
+        this.deleteTodo(idx);
+      }
       this.$toast.success("Marked complete");
     },
     reopenTodo(idx) {
@@ -474,6 +552,30 @@ export default {
       this.$toast.error(
         "Local storage cleared. Refresh page before making any changes"
       );
+    },
+    convertToLatestTodo(oldTodoList) {
+      let newTodoList = [];
+      for (let i = 0; i < oldTodoList.length; i++) {
+        let oldTodo = oldTodoList[i];
+        let newTodo = {
+          id: oldTodo.id == undefined ? null : oldTodo.id,
+          text: oldTodo.text == undefined ? "<Undefined>" : oldTodo.text,
+          notes: oldTodo.notes == undefined ? "" : oldTodo.notes,
+          dueDate: oldTodo.dueDate == undefined ? null : oldTodo.dueDate,
+          priority: oldTodo.priority == undefined ? "Medium" : oldTodo.priority,
+          completed: oldTodo.completed == undefined ? false : oldTodo.completed,
+          completedDate:
+            oldTodo.completedDate == undefined ? null : oldTodo.completedDate,
+          tags: oldTodo.tags == undefined ? [] : oldTodo.tags,
+          tagColors: oldTodo.tagColors == undefined ? [] : oldTodo.tagColors,
+          repeatFrequency:
+            oldTodo.repeatFrequency == undefined
+              ? "None"
+              : oldTodo.repeatFrequency,
+        };
+        newTodoList.push(newTodo);
+      }
+      return newTodoList;
     },
   },
   watch: {

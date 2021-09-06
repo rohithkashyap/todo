@@ -21,7 +21,14 @@
             <div class="col">
               <p>{{ todo.text }}</p>
             </div>
-            <div class="col-2" v-if="todo.notes != '' || todo.dueDate != null ||  (todo.tags != null && todo.tags.length != 0)">
+            <div
+              class="col-2"
+              v-if="
+                todo.notes != '' ||
+                todo.dueDate != null ||
+                todo.tags.length != 0
+              "
+            >
               <button
                 class="btn"
                 v-if="!expandNotes"
@@ -37,11 +44,14 @@
                 🔼
               </button>
             </div>
-            <!-- <div class="col-1">
-              <button class="btn btn-outline-dark" v-on:click="deleteTodo()">
-                ❌
-              </button>
-            </div> -->
+            <div class="col-1" v-if="showDelete">
+              <button
+                type="button"
+                class="btn-close"
+                aria-label="Close"
+                v-on:click="deleteTodo()"
+              ></button>
+            </div>
           </div>
           <p
             id="collapseOne"
@@ -56,15 +66,16 @@
         <!-- footer -->
         <div
           v-show="
-            (todo.dueDate != null ||
-              (todo.tags != null && todo.tags.length != 0)) &&
-            expandNotes
+            (todo.dueDate != null || todo.tags.length != 0) && expandNotes
           "
           class="card-footer"
         >
           <div class="row">
             <div class="col-7" v-show="todo.dueDate != null">
               <small class="text-muted">⏲ Due {{ todo.dueDate }}</small>
+              <small class="text-muted" v-if="todo.repeatFrequency != 'None'"
+                >🔁</small
+              >
             </div>
             <div class="col text-end" v-if="todo.tagColors != null">
               <span
@@ -100,6 +111,7 @@ export default {
   },
   props: {
     todo: Object,
+    showDelete: Boolean(false),
   },
   emits: ["delete-todo", "complete-todo", "reopen-todo", "search-tag"],
   methods: {
