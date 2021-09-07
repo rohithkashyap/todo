@@ -16,7 +16,12 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div class="navbar-nav">
-            <a class="nav-link" @click="showDelete = !showDelete">{{ showDelete ? "Hide delete" : "Show delete"}}</a>
+            <a class="nav-link" @click="showCompleted = !showCompleted">{{
+              showCompleted ? "Hide completed todos" : "Show completed todos"
+            }}</a>
+            <a class="nav-link" @click="showDelete = !showDelete">{{
+              showDelete ? "Hide delete button" : "Show delete button"
+            }}</a>
           </div>
         </div>
       </div>
@@ -144,28 +149,6 @@
 
     <hr style="margin-top: 5px" />
 
-    <!-- Tab for pending/completed -->
-    <ul class="nav nav-pills nav-fill">
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          v-on:click="isTodoPending = true"
-          v-bind:class="{ active: isTodoPending }"
-        >
-          Pending
-        </button>
-      </li>
-      <li class="nav-item">
-        <button
-          class="nav-link"
-          v-on:click="isTodoPending = false"
-          v-bind:class="{ active: !isTodoPending }"
-        >
-          Completed
-        </button>
-      </li>
-    </ul>
-
     <!-- Search -->
     <div class="row">
       <div class="input-group top-buffer">
@@ -221,33 +204,33 @@
     </div>
 
     <!-- todo list -->
-    <div v-if="isTodoPending">
-      <div class="row center-block text-center" style="margin-top: 20px">
-        <h3 v-if="filteredTodoList.length === 0">No pending todos</h3>
-      </div>
-      <todo-item
-        v-for="todo in filteredTodoList || []"
-        v-bind:todo="todo"
-        v-bind:key="todo.id"
-        v-bind:showDelete="showDelete"        
-        v-on:delete-todo="deleteTodo"
-        v-on:complete-todo="completeTodo"
-        v-on:search-tag="searchTagTodo"
-      ></todo-item>
+    <div class="row center-block text-center" style="margin-top: 20px">
+      <h3 v-if="filteredTodoList.length === 0">No pending todos</h3>
     </div>
+    <todo-item
+      v-for="todo in filteredTodoList || []"
+      v-bind:todo="todo"
+      v-bind:key="todo.id"
+      v-bind:showDelete="showDelete"
+      v-bind:showCompleted="showCompleted"
+      v-on:delete-todo="deleteTodo"
+      v-on:complete-todo="completeTodo"
+      v-on:search-tag="searchTagTodo"
+    ></todo-item>
 
     <!-- completed list -->
-    <div v-if="!isTodoPending">
+    <div v-if="showCompleted">
       <div class="row center-block text-center" style="margin-top: 20px">
         <h3 v-if="filteredCompletedTodoList.length === 0">
           No completed todos
         </h3>
+        <h3 v-else>Completed</h3>
       </div>
       <todo-item
         v-for="todo in filteredCompletedTodoList || []"
         v-bind:todo="todo"
         v-bind:key="todo.id"
-        v-bind:showDelete="showDelete"        
+        v-bind:showDelete="showDelete"
         v-on:delete-todo="deleteCompletedTodo"
         v-on:reopen-todo="reopenTodo"
         v-on:search-tag="searchTagTodo"
@@ -290,10 +273,17 @@ export default {
       JSON.parse(localStorage.getItem("completedTodoList") != undefined) &&
       JSON.parse(localStorage.getItem("completedTodoList") != null)
     ) {
-      this.completedTodoList = JSON.parse(
+      let storedList = JSON.parse(
         localStorage.getItem("completedTodoList")
       );
+      this.completedTodoList = this.convertToLatestTodo(storedList);
       this.filteredCompletedTodoList = this.completedTodoList;
+    }
+    if (
+      JSON.parse(localStorage.getItem("showCompleted") != undefined) &&
+      JSON.parse(localStorage.getItem("showCompleted") != null)
+    ) {
+      this.showCompleted = JSON.parse(localStorage.getItem("showCompleted"));
     }
   },
   data() {
@@ -308,7 +298,7 @@ export default {
       newPriority: "Medium",
       newRepeatFrequency: "None",
       dateEnabled: false,
-      isTodoPending: true,
+      showCompleted: false,
       newTags: String(""),
       searchText: String(""),
       tagFullColorMap: new Map(),
@@ -611,6 +601,9 @@ export default {
       }
       this.searchAllTodos();
     },
+    showCompleted: function () {
+      localStorage.showCompleted = JSON.stringify(this.showCompleted);
+    }
   },
 };
 </script>

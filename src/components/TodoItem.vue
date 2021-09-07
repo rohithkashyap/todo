@@ -19,7 +19,8 @@
               />
             </div>
             <div class="col">
-              <p>{{ todo.text }}</p>
+              <del v-if="todo.completed">{{ todo.text }}</del>
+              <p v-else>{{ todo.text }}</p>
             </div>
             <div
               class="col-2"
@@ -112,6 +113,7 @@ export default {
   props: {
     todo: Object,
     showDelete: Boolean(false),
+    showCompleted: Boolean(false),
   },
   emits: ["delete-todo", "complete-todo", "reopen-todo", "search-tag"],
   methods: {
