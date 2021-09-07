@@ -33,7 +33,7 @@
     <!-- Add a todo -->
     <div class="sticky container">
       <form @submit.prevent="addToList()">
-        <div v-show="showTodoOptions">
+        <div v-show="newTodoItem.length">
           <!-- tags -->
           <div class="row top-buffer">
             <div class="col">
@@ -143,8 +143,6 @@
                 placeholder="Add a todo..."
                 aria-describedby="newTodoEdit"
                 v-model="newTodoItem"
-                @focus="showTodoOptions = true"
-                @blur="showTodoOptions = false"
               />
             </div>
           </div>
@@ -310,7 +308,6 @@ export default {
       notesSearchEnabled: true,
       tagsSearchEnabled: true,
       showDelete: false,
-      showTodoOptions: false,
     };
   },
   methods: {
