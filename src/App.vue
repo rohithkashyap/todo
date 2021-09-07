@@ -19,6 +19,9 @@
             <a class="nav-link" @click="showCompleted = !showCompleted">{{
               showCompleted ? "Hide completed todos" : "Show completed todos"
             }}</a>
+            <a class="nav-link" @click="showSearch = !showSearch">{{
+              showSearch ? "Hide search" : "Show search"
+            }}</a>
             <a class="nav-link" @click="showDelete = !showDelete">{{
               showDelete ? "Hide delete button" : "Show delete button"
             }}</a>
@@ -150,7 +153,7 @@
     <hr style="margin-top: 5px" />
 
     <!-- Search -->
-    <div class="row">
+    <div class="row" v-if="showSearch">
       <div class="input-group top-buffer">
         <span class="input-group-text" id="searchEdit">🔍</span>
         <input
@@ -273,9 +276,7 @@ export default {
       JSON.parse(localStorage.getItem("completedTodoList") != undefined) &&
       JSON.parse(localStorage.getItem("completedTodoList") != null)
     ) {
-      let storedList = JSON.parse(
-        localStorage.getItem("completedTodoList")
-      );
+      let storedList = JSON.parse(localStorage.getItem("completedTodoList"));
       this.completedTodoList = this.convertToLatestTodo(storedList);
       this.filteredCompletedTodoList = this.completedTodoList;
     }
@@ -299,10 +300,10 @@ export default {
       newRepeatFrequency: "None",
       dateEnabled: false,
       showCompleted: false,
+      showSearch: false,
       newTags: String(""),
       searchText: String(""),
       tagFullColorMap: new Map(),
-      showSearch: false,
       textSearchEnabled: true,
       notesSearchEnabled: true,
       tagsSearchEnabled: true,
@@ -603,7 +604,7 @@ export default {
     },
     showCompleted: function () {
       localStorage.showCompleted = JSON.stringify(this.showCompleted);
-    }
+    },
   },
 };
 </script>
