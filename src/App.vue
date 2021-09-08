@@ -2,7 +2,7 @@
   <div class="container" style="margin-bottom: 50px">
     <nav class="navbar navbar-expand-md navbar-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">Todo 1.4.0</a>
+        <a class="navbar-brand" href="#">Todo 1.5.0 </a>
         <button
           class="navbar-toggler"
           type="button"
@@ -143,6 +143,7 @@
                 placeholder="Add a todo..."
                 aria-describedby="newTodoEdit"
                 v-model="newTodoItem"
+                @focus="showTodoOptions = true"
               />
             </div>
           </div>
@@ -308,6 +309,7 @@ export default {
       notesSearchEnabled: true,
       tagsSearchEnabled: true,
       showDelete: false,
+      showTodoOptions: false,
     };
   },
   methods: {
@@ -359,40 +361,48 @@ export default {
       completedData.completedDate = this.toIsoString(new Date()).slice(0, 16);
       this.completedTodoList.push(completedData);
 
-      // Make changes as necessary
-      if (data.repeatFrequency == "Daily") {
-        data.completed = false;
-        data.completedDate = null;
-        let updateDueDate = new Date(data.dueDate);
-        updateDueDate.setDate(updateDueDate.getDate() + 1);
-        data.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
-      } else if (data.repeatFrequency == "Weekly") {
-        data.completed = false;
-        data.completedDate = null;
-        let updateDueDate = new Date(data.dueDate);
-        updateDueDate.setDate(updateDueDate.getDate() + 7);
-        data.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
-      } else if (data.repeatFrequency == "Monthly") {
-        data.completed = false;
-        data.completedDate = null;
-        let updateDueDate = new Date(data.dueDate);
-        updateDueDate.setMonth(updateDueDate.getMonth() + 1);
-        data.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
-      } else if (data.repeatFrequency == "Yearly") {
-        data.completed = false;
-        data.completedDate = null;
-        let updateDueDate = new Date(data.dueDate);
-        updateDueDate.setFullYear(updateDueDate.getFullYear() + 1);
-        data.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
-      } else {
-        this.deleteTodo(idx);
+      if (data.repeatFrequency != "None") {
+        console.log("repeat freq: ", data.repeatFrequency);
+        let repeatData = { ...data };
+
+        // Make changes as necessary
+        if (repeatData.repeatFrequency == "Daily") {
+          repeatData.completed = false;
+          repeatData.completedDate = null;
+          let updateDueDate = new Date(repeatData.dueDate);
+          updateDueDate.setDate(updateDueDate.getDate() + 1);
+          repeatData.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
+        } else if (repeatData.repeatFrequency == "Weekly") {
+          repeatData.completed = false;
+          repeatData.completedDate = null;
+          let updateDueDate = new Date(repeatData.dueDate);
+          updateDueDate.setDate(updateDueDate.getDate() + 7);
+          repeatData.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
+        } else if (repeatData.repeatFrequency == "Monthly") {
+          repeatData.completed = false;
+          repeatData.completedDate = null;
+          let updateDueDate = new Date(repeatData.dueDate);
+          updateDueDate.setMonth(updateDueDate.getMonth() + 1);
+          repeatData.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
+        } else if (repeatData.repeatFrequency == "Yearly") {
+          repeatData.completed = false;
+          repeatData.completedDate = null;
+          let updateDueDate = new Date(repeatData.dueDate);
+          updateDueDate.setFullYear(updateDueDate.getFullYear() + 1);
+          repeatData.dueDate = this.toIsoString(updateDueDate).slice(0, 16);
+        }
+        repeatData.id = Date.now();
+        this.todoList.push(repeatData);
       }
+      // Remove from todo list
+      this.deleteTodo(idx);
       this.$toast.success("Marked complete");
     },
     reopenTodo(idx) {
       let data = this.completedTodoList.find((e) => e.id === idx);
       data.completed = false;
       data.completedDate = null;
+      data.repeatFrequency = "None";
       this.todoList.push(data);
       this.deleteCompletedTodo(idx);
       this.$toast.info("Re-opened todo");
